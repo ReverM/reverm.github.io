@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2025-06-06
+ * Date: 2025-06-23
  */
 
 var Module = (() => {
@@ -2098,6 +2098,7 @@ for (const prop of Object.keys(Module)) {
 export default Module;
 
 var Solver = null;
+window.nextTag = 0;
 
 Module().then(function (mod) {
 	Solver = mod;
