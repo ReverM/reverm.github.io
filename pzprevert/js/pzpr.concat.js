@@ -1,7 +1,7 @@
 /*!
  * @license
  *
- * pzpr.js v7f9addbe
+ * pzpr.js vef2ee8ef
  *  https://github.com/sabo2/pzprv3
  *
  * This script includes candle.js, see below
@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2025-06-06
+ * Date: 2025-07-06
  */
 // intro.js
 
@@ -25,7 +25,7 @@
 //---------------------------------------------------------------------------
 /* extern */
 var pzpr = {
-	version: "7f9addbe"
+	version: "ef2ee8ef"
 };
 
 if (typeof module === "object" && module.exports) {
@@ -5274,6 +5274,7 @@ pzpr.classmgr.makeCommon({
 		autoSolve: function(force) {
 			this.answers = null;
 			var updateCells = !(this.pid === "kouchoku");
+			var updateBorders = !(this.pid === "star_battle");
 			var updateBorders = /*
 				[
 					"slither",
@@ -5342,7 +5343,7 @@ pzpr.classmgr.makeCommon({
 				for (var g = 0; g < this.cell.length; ++g) {
 					var i = this.cell[g];
 					for (j = b[(i.by - 1) / 2][(i.bx - 1) / 2], k = 0; k < j.length; ++k) {
-						if ("block" === j[k] || ("fill" === j[k] && "firewalk" !== this.pid) || ("circle" === j[k] && "doppelblock" !== this.pid) || "firewalkCellUl" === j[k] || "firewalkCellDr" === j[k] || "firewalkCellUlDr" === j[k]) {
+						if ("block" === j[k] || "star" === j[k] || ("fill" === j[k] && "firewalk" !== this.pid) || ("circle" === j[k] && "doppelblock" !== this.pid) || "firewalkCellUl" === j[k] || "firewalkCellDr" === j[k] || "firewalkCellUlDr" === j[k]) {
 							i.qansBySolver = 1;
 						}
 						else if ("triangle" === j[k] || "firewalkCellUr" === j[k] || "firewalkCellDl" === j[k] || "firewalkCellUrDl" === j[k]) {
