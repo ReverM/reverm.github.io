@@ -1,7 +1,7 @@
 /*!
  * @license
  *
- * pzpr.js vef2ee8ef
+ * pzpr.js v7b09eca2
  *  https://github.com/sabo2/pzprv3
  *
  * This script includes candle.js, see below
@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2025-07-06
+ * Date: 2025-10-29
  */
 // intro.js
 
@@ -25,7 +25,7 @@
 //---------------------------------------------------------------------------
 /* extern */
 var pzpr = {
-	version: "ef2ee8ef"
+	version: "7b09eca2"
 };
 
 if (typeof module === "object" && module.exports) {
@@ -5184,6 +5184,10 @@ pzpr.classmgr.makeCommon({
 		initialize: function() {
 			var classes = this.klass;
 
+			var solverWorker = null;
+			var isWorking = false;
+			var isRunning = false;
+
 			// 盤面の範囲
 			this.minbx = 0;
 			this.minby = 0;
@@ -5274,7 +5278,6 @@ pzpr.classmgr.makeCommon({
 		autoSolve: function(force) {
 			this.answers = null;
 			var updateCells = !(this.pid === "kouchoku");
-			var updateBorders = !(this.pid === "star_battle");
 			var updateBorders = /*
 				[
 					"slither",
@@ -5297,26 +5300,85 @@ pzpr.classmgr.makeCommon({
 				if (needUpdateField) {
 					this.puzzle.painter.paintAll();
 				}
+				if (window.Worker) {
+					this.isWorking = false;
+					this.isRunning = false;
+					ui.setdisplay();
+					if (this.solverWorker !== null) {
+						this.solverWorker.terminate();
+					}
+					this.solverWorker = null;
+				}
 				return;
 			}
-			var url = ui.puzzle.getURL(pzpr.parser.URL_PZPRV3);
-			var result = window.solveProblem(url);
 
+			var url = ui.puzzle.getURL(pzpr.parser.URL_PZPRV3);
 			if (updateCells) {
-				this.updateSolverAnswerForCells(result);
+				this.clearSolverAnswerForCells();
 			}
-			if (updateBorders) {
-				this.updateSolverAnswerForBorders(result);
-			}
-			this.updateSolverAnswerForCrosses(result);
+			this.clearSolverAnswerForBorders()
 			this.puzzle.painter.paintAll();
+
+			this.isRunning = true;
+			ui.setdisplay();
+			if (window.Worker) {
+				if (!this.solverWorker) {
+					this.solverWorker = new Worker("js/SolverWorker.js", { type: "module"});
+				}
+				
+				var bd = this.board;
+			
+				if (!this.isWorking) {
+					this.isWorking = true;
+					this.solverWorker.postMessage(url);
+				}
+				
+
+				this.solverWorker.onmessage = function(message) {
+					var result = message.data;
+					var solverUrl = result[0];
+					var solution = result[1];
+
+					if (ui.puzzle.getURL(pzpr.parser.URL_PZPRV3) !== solverUrl) {
+						bd.solverWorker.postMessage(ui.puzzle.getURL(pzpr.parser.URL_PZPRV3));
+					}
+					
+					else {
+						bd.isWorking = false;
+						if (updateCells) {
+							bd.updateSolverAnswerForCells(solution);
+						}
+
+						bd.updateSolverAnswerForBorders(solution);
+						bd.updateSolverAnswerForCrosses(solution);
+
+						bd.isRunning = false;
+						ui.setdisplay();
+						bd.puzzle.painter.paintAll();
+					}
+
+				}
+			}
+
+			else {
+				var result = window.solveProblem(url);
+				if (updateCells) {
+					this.updateSolverAnswerForCells(result);
+				}
+
+				this.updateSolverAnswerForBorders(result);
+				this.updateSolverAnswerForCrosses(result);
+				this.isRunning = false;
+				ui.setdisplay();
+				this.puzzle.painter.paintAll();
+			}
 		},
 
 
 		clearSolverAnswerForCells: function() {
 			for (var a = !1, b = 0; b < this.cell.length; ++b) {
 				var c = this.cell[b];
-				0 === c.qansBySolver && 0 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), [] !== c.destBySolver && (c.destBySolver = [], a = !0)
+				0 === c.qansBySolver && 0 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), c.destBySolver.length !== 0 && (c.destBySolver = [], a = !0)
 			}
 			return a
 		},
@@ -5330,6 +5392,23 @@ pzpr.classmgr.makeCommon({
 					}
 					b.push(d);
 				}
+				var x1 = 9999, // To use for bosanowa - the url is automatically centered, this uncenters the puzzle so the cells are correctly put
+					y1 = 9999,
+					bd = this.board;
+				if ("bosanowa" === this.pid) {
+					for (var c = 0; c < bd.cell.length; c++) {
+						var cell = bd.cell[c];
+						if (cell.isEmpty()) {
+							continue;
+						}
+						if (x1 > cell.bx) {
+							x1 = cell.bx;
+						}
+						if (y1 > cell.by) {
+							y1 = cell.by;
+						}
+					}
+				}
 				var solution = result.data;
 				for (var g = 0; g < solution.length; ++g) {
 					var h = solution[g];
@@ -5342,17 +5421,21 @@ pzpr.classmgr.makeCommon({
 				}
 				for (var g = 0; g < this.cell.length; ++g) {
 					var i = this.cell[g];
+
 					for (j = b[(i.by - 1) / 2][(i.bx - 1) / 2], k = 0; k < j.length; ++k) {
-						if ("block" === j[k] || "star" === j[k] || ("fill" === j[k] && "firewalk" !== this.pid) || ("circle" === j[k] && "doppelblock" !== this.pid) || "firewalkCellUl" === j[k] || "firewalkCellDr" === j[k] || "firewalkCellUlDr" === j[k]) {
+						if ("block" === j[k] || "filledCircle" === j[k] || ("fill" === j[k] && "firewalk" !== this.pid) || ("circle" === j[k] && "doppelblock" !== this.pid && "yinyang" !== this.pid) || "firewalkCellUl" === j[k] || "firewalkCellDr" === j[k] || "firewalkCellUlDr" === j[k]) {
 							i.qansBySolver = 1;
 						}
 						else if ("triangle" === j[k] || "firewalkCellUr" === j[k] || "firewalkCellDl" === j[k] || "firewalkCellUrDl" === j[k]) {
 							i.qansBySolver = 2;
 						}
 						else if ("square" === j[k] || "firewalkCellUnknown" === j[k]) {
+							if ("shugaku" === this.pid ){
+								i.qsubBySolver = 1;
+							}
 							i.qansBySolver = 3;
 						}
-						else if ("dot" === j[k] || ("circle" === j[k] && "doppelblock" === this.pid)) {
+						else if ("dot" === j[k] || ("circle" === j[k] && ("doppelblock" === this.pid || "yinyang" === this.pid)) ) {
 							i.qsubBySolver = 1;
 						}
 						else if ("aboloUpperLeft" === j[k]) {
@@ -5387,7 +5470,12 @@ pzpr.classmgr.makeCommon({
 						}
 						else if (j[k].kind) {
 							if ("text" === j[k].kind) {
-								i.qnumBySolver = parseInt(j[k].data);
+								if ("bosanowa" === this.pid) { // Bosanowa encoding automatically centers the cells. This uncenters them so that the numbers are displayed in the correct location
+									bd.getc(i.bx - 1 + x1,i.by - 1 + y1).qnumBySolver = parseInt(j[k].data);
+								}
+								else {
+									i.qnumBySolver = parseInt(j[k].data);
+								}
 							}
 							else if ("sudokuCandidateSet" === j[k].kind) {
 								i.qcandBySolver = [];
@@ -5463,7 +5551,7 @@ pzpr.classmgr.makeCommon({
 		clearSolverAnswerForCrosses: function () {
 			for (var a = !1, b = 0; b < this.cross.length; ++b) {
 				var c = this.cross[b];
-				0 === c.qansBySolver && -1 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = -1, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), [] !== c.destBySolver && (c.destBySolver = [], a = !0)
+				0 === c.qansBySolver && -1 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = -1, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), c.destBySolver.length !== 0 && (c.destBySolver = [], a = !0)
 			}
 			return a
 		},

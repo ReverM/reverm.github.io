@@ -1,7 +1,7 @@
 /*!
  * @license
  *
- * pzpr.js v79de6762
+ * pzpr.js v7b09eca2
  *  https://github.com/sabo2/pzprv3
  *
  * This script includes candle.js, see below
@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2025-08-17
+ * Date: 2025-10-29
  */
 
 var Module = (() => {
@@ -2098,13 +2098,20 @@ for (const prop of Object.keys(Module)) {
 export default Module;
 
 var Solver = null;
-window.nextTag = 0;
 
-Module().then(function (mod) {
-	Solver = mod;
+const moduleLoaded = new Promise((resolve) => {
+    const resolveRef = resolve;
+    Module().then(function (mod) {
+        Solver = mod;
+        resolveRef();
+    });
 });
 
-window.solveProblem = function (url) {
+
+export async function solveProblem(url) {
+	if (Solver === null) {
+		await moduleLoaded;
+	}
 	var urlEncoded = new TextEncoder().encode(url);
 	var buf = Solver._malloc(urlEncoded.length);
 	Solver.HEAPU8.set(urlEncoded, buf);
@@ -2117,5 +2124,6 @@ window.solveProblem = function (url) {
 	var result = JSON.parse(resultStr.substring(0, resultStr.length));
 	return result["description"];
 }
+
 
 //# sourceMappingURL=solver.concat.js.map
