@@ -19,19 +19,12 @@ async function Module(moduleArg={}){var moduleRtn;var Module=moduleArg;var ENVIR
 
 var Solver = null;
 
-const moduleLoaded = new Promise((resolve) => {
-    const resolveRef = resolve;
-    Module().then(function (mod) {
-        Solver = mod;
-        resolveRef();
-    });
+Module().then(function (mod) {
+	Solver = mod;
 });
 
 
-export async function solveProblem(url) {
-	if (Solver === null) {
-		await moduleLoaded;
-	}
+window.solveProblemAlt = function (url) {
 	var urlEncoded = new TextEncoder().encode(url);
 	var buf = Solver._malloc(urlEncoded.length);
 	Solver.HEAPU8.set(urlEncoded, buf);
@@ -46,4 +39,4 @@ export async function solveProblem(url) {
 }
 
 
-//# sourceMappingURL=solver.concat.js.map
+//# sourceMappingURL=solverNoThread.concat.js.map

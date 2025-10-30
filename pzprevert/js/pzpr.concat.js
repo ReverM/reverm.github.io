@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2025-10-29
+ * Date: 2025-10-30
  */
 // intro.js
 
@@ -5304,7 +5304,7 @@ pzpr.classmgr.makeCommon({
 					this.isWorking = false;
 					this.isRunning = false;
 					ui.setdisplay();
-					if (this.solverWorker !== null) {
+					if (!!this.solverWorker) {
 						this.solverWorker.terminate();
 					}
 					this.solverWorker = null;
@@ -5320,7 +5320,9 @@ pzpr.classmgr.makeCommon({
 			this.puzzle.painter.paintAll();
 
 			this.isRunning = true;
-			ui.setdisplay();
+			if (!this.isWorking) {
+				ui.setdisplay();
+			}
 			if (window.Worker) {
 				if (!this.solverWorker) {
 					this.solverWorker = new Worker("js/SolverWorker.js", { type: "module"});
@@ -5333,7 +5335,6 @@ pzpr.classmgr.makeCommon({
 					this.solverWorker.postMessage(url);
 				}
 				
-
 				this.solverWorker.onmessage = function(message) {
 					var result = message.data;
 					var solverUrl = result[0];
@@ -5361,7 +5362,7 @@ pzpr.classmgr.makeCommon({
 			}
 
 			else {
-				var result = window.solveProblem(url);
+				var result = window.solveProblemAlt(url);
 				if (updateCells) {
 					this.updateSolverAnswerForCells(result);
 				}
