@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2025-10-30
+ * Date: 2025-11-01
  */
 // intro.js
 
@@ -5184,9 +5184,10 @@ pzpr.classmgr.makeCommon({
 		initialize: function() {
 			var classes = this.klass;
 
-			var solverWorker = null;
-			var isWorking = false;
-			var isRunning = false;
+			this.solverWorker = null;
+			this.solverWorkerAlt = null;
+			this.isRunning = false;
+			this.isAlt = false; // Boolean used to check which of the two workers is to be considered the main one
 
 			// 盤面の範囲
 			this.minbx = 0;
@@ -5301,12 +5302,16 @@ pzpr.classmgr.makeCommon({
 					this.puzzle.painter.paintAll();
 				}
 				if (window.Worker) {
-					this.isWorking = false;
+					this.isAlt = false;
 					this.isRunning = false;
 					ui.setdisplay();
 					if (!!this.solverWorker) {
 						this.solverWorker.terminate();
 					}
+					if (!!this.solverWorkerAlt) {
+						this.solverWorkerAlt.terminate();
+					}
+					this.solverWorkerAlt = null;
 					this.solverWorker = null;
 				}
 				return;
@@ -5318,50 +5323,105 @@ pzpr.classmgr.makeCommon({
 			}
 			this.clearSolverAnswerForBorders()
 			this.puzzle.painter.paintAll();
+			
+			
 
-			this.isRunning = true;
-			if (!this.isWorking) {
-				ui.setdisplay();
-			}
 			if (window.Worker) {
 				if (!this.solverWorker) {
 					this.solverWorker = new Worker("js/SolverWorker.js", { type: "module"});
 				}
+				if (!this.solverWorkerAlt) {
+					this.solverWorkerAlt = new Worker("js/SolverWorker.js", { type: "module"});
+				}
 				
 				var bd = this.board;
 			
-				if (!this.isWorking) {
-					this.isWorking = true;
-					this.solverWorker.postMessage(url);
+				if (!this.isRunning) {
+					this.isRunning = true;
+					ui.setdisplay();
+					if (this.isAlt) {
+						this.solverWorkerAlt.postMessage(url);
+					}
+					else {
+						this.solverWorker.postMessage(url);
+					}
+				}
+				else {
+					if (this.isAlt) {
+						if (!!this.solverWorker) {
+							this.solverWorker.terminate();
+						}
+						this.solverWorker = new Worker("js/SolverWorker.js", { type: "module"});
+						this.solverWorker.postMessage(url);	
+					}
+					else {
+						if (!!this.solverWorkerAlt) {
+							this.solverWorkerAlt.terminate();
+						}
+						this.solverWorkerAlt = new Worker("js/SolverWorker.js", { type: "module"});
+						this.solverWorkerAlt.postMessage(url);	
+					}
 				}
 				
-				this.solverWorker.onmessage = function(message) {
-					var result = message.data;
-					var solverUrl = result[0];
-					var solution = result[1];
+				if (!!this.solverWorker) {
+					this.solverWorker.onmessage = function(message) {
+						var result = message.data;
+						var solverUrl = result[0];
+						var solution = result[1];
 
-					if (ui.puzzle.getURL(pzpr.parser.URL_PZPRV3) !== solverUrl) {
-						bd.solverWorker.postMessage(ui.puzzle.getURL(pzpr.parser.URL_PZPRV3));
-					}
-					
-					else {
-						bd.isWorking = false;
-						if (updateCells) {
-							bd.updateSolverAnswerForCells(solution);
+						if (ui.puzzle.getURL(pzpr.parser.URL_PZPRV3) !== solverUrl) {
+							this.postMessage(ui.puzzle.getURL(pzpr.parser.URL_PZPRV3));
+						}
+						
+						else {
+							bd.isRunning = false;
+							if (updateCells) {
+								bd.updateSolverAnswerForCells(solution);
+							}
+
+							bd.updateSolverAnswerForBorders(solution);
+							bd.updateSolverAnswerForCrosses(solution);
+
+							bd.isAlt = bd.isAlt ? !bd.isAlt: bd.isAlt;
+							ui.setdisplay();
+							bd.puzzle.painter.paintAll();
 						}
 
-						bd.updateSolverAnswerForBorders(solution);
-						bd.updateSolverAnswerForCrosses(solution);
-
-						bd.isRunning = false;
-						ui.setdisplay();
-						bd.puzzle.painter.paintAll();
 					}
+				}
 
+				if (!!this.solverWorkerAlt) {
+					this.solverWorkerAlt.onmessage = function(message) {
+						var result = message.data;
+						var solverUrl = result[0];
+						var solution = result[1];
+
+						if (ui.puzzle.getURL(pzpr.parser.URL_PZPRV3) !== solverUrl) {
+							this.postMessage(ui.puzzle.getURL(pzpr.parser.URL_PZPRV3));
+						}
+						
+						else {
+							
+							bd.isRunning = false;
+							if (updateCells) {
+								bd.updateSolverAnswerForCells(solution);
+							}
+
+							bd.updateSolverAnswerForBorders(solution);
+							bd.updateSolverAnswerForCrosses(solution);
+
+							bd.isAlt = !bd.isAlt ? !bd.isAlt: bd.isAlt;
+							ui.setdisplay();
+							bd.puzzle.painter.paintAll();
+						}
+
+					}
 				}
 			}
 
 			else {
+				this.isRunning = true;
+				ui.setdisplay();
 				var result = window.solveProblemAlt(url);
 				if (updateCells) {
 					this.updateSolverAnswerForCells(result);
