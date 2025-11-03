@@ -373,8 +373,16 @@ if ('serviceWorker' in navigator) {
       </span>
       <span class="config" data-config="run_autosolver">
         <button class="btn" data-button-exec="run_autosolver">__solver.run__</button>
+        <span id="solver.status">__solver.status__</span>
       </span>
-      <span id="solver.status">__solver.status__</span> 
+    </div>
+    <div>
+      <span class="config" data-config="solver_erase">
+        <label>
+          <input type="checkbox">
+          <span>__solver.erase__</span>
+        </label>
+      </span>
     </div>
   </div>
   <hr class="separator" id="separator1">

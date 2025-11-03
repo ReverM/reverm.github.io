@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2025-11-01
+ * Date: 2025-11-03
  */
 // intro.js
 
@@ -1188,7 +1188,7 @@ pzpr.classmgr = {
 			if (pzpr.env.node) {
 				url = "http://pzv.jp/p.html";
 			} else {
-				url = "https://puzz.link/p";
+				url = "https://pzprxs.vercel.app/p";
 			}
 			switch (this.type) {
 				case URL_PZPRV3:
@@ -2928,6 +2928,7 @@ pzpr.MetaData.prototype = {
 			this.add("uramashu", false, { volatile: true }); /* 裏ましゅにする */
 			this.add("autosolver", false, { volatile: true });
 			this.add("run_autosolver", false, { volatile: true });
+			this.add("solver_erase", true, { volatile: false });
 			this.add("open_solver", false, { volatile: true })
 		},
 		add: function(name, defvalue, extoption) {
@@ -5318,14 +5319,14 @@ pzpr.classmgr.makeCommon({
 			}
 
 			var url = ui.puzzle.getURL(pzpr.parser.URL_PZPRV3);
-			if (updateCells) {
-				this.clearSolverAnswerForCells();
+			if (this.puzzle.getConfig("solver_erase")) {
+				if (updateCells) {
+					this.clearSolverAnswerForCells();
+				}
+				this.clearSolverAnswerForBorders()
+				this.puzzle.painter.paintAll();
 			}
-			this.clearSolverAnswerForBorders()
-			this.puzzle.painter.paintAll();
 			
-			
-
 			if (window.Worker) {
 				if (!this.solverWorker) {
 					this.solverWorker = new Worker("js/SolverWorker.js", { type: "module"});
