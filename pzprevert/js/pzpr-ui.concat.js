@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2025-11-24
+ * Date: 2025-12-16
  */
 // intro.js
 
@@ -1346,6 +1346,7 @@ function toBGimage(pid) {
 		"sashikazune",
 		"satogaeri",
 		"scrin",
+		"sendai",
 		"simplegako",
 		"simpleloop",
 		"skyscrapers",
@@ -3332,7 +3333,9 @@ ui.toolarea = {
 		var net = ui.network.mode !== "";
 
 		var isRunning = ui.puzzle.board.isRunning;
-		getEL("solver.status").textContent = isRunning ? ui.i18n("solver.status.running") : ui.i18n("solver.status.running");
+		getEL("solver.status").textContent = isRunning
+			? ui.i18n("solver.status.running")
+			: ui.i18n("solver.status.running");
 		getEL("solver.status").style.visibility = isRunning ? "visible" : "hidden";
 
 		if (idname === "operation") {
@@ -3460,10 +3463,10 @@ ui.toolarea = {
 		ui.puzzle.irowake();
 	},
 	run_autosolver: function() {
-		ui.puzzle.board.autoSolve(true)
+		ui.puzzle.board.autoSolve(true);
 	},
 	open_solver: function() {
-		ui.puzzle.board.openSolver()
+		ui.puzzle.board.openSolver();
 	},
 	encolorall: function() {
 		ui.puzzle.board.encolorall();
@@ -3861,8 +3864,10 @@ ui.keypopup = {
 		numcity: [10, 10],
 		cityspace: [10, 0],
 		diamond: [4, 0],
+		sendai: [10, 0],
 		morningwalk: [10, 0],
-		energywalk: [10, 0]
+		energywalk: [10, 0],
+		keywest: [4, 4]
 	},
 
 	//---------------------------------------------------------------------------
@@ -5170,19 +5175,20 @@ ui.popupmgr.addpopup("auxeditor", {
 	},
 
 	solver_answer_first: function() {
-		ui.auxeditor.puzzle.board.locateAnswer(-2)
+		ui.auxeditor.puzzle.board.locateAnswer(-2);
 	},
 	solver_answer_prev: function() {
-		ui.auxeditor.puzzle.board.locateAnswer(-1)
+		ui.auxeditor.puzzle.board.locateAnswer(-1);
 	},
 	solver_answer_next: function() {
-		ui.auxeditor.puzzle.board.locateAnswer(1)
+		ui.auxeditor.puzzle.board.locateAnswer(1);
 	},
 	solver_answer_last: function() {
-		ui.auxeditor.puzzle.board.locateAnswer(2)
+		ui.auxeditor.puzzle.board.locateAnswer(2);
 	},
 	solver_stop: function() {
-		ui.auxeditor.puzzle.board.solverRunning && window.solveNumberlinkAsyncTerminate()
+		ui.auxeditor.puzzle.board.solverRunning &&
+			window.solveNumberlinkAsyncTerminate();
 	}
 });
 
