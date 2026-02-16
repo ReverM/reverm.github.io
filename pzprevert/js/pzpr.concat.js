@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2026-02-12
+ * Date: 2026-02-16
  */
 // intro.js
 
@@ -3087,6 +3087,7 @@ pzpr.MetaData.prototype = {
 					conf[key] = this.get(key);
 				}
 			}
+
 			return conf;
 		},
 
@@ -3390,8 +3391,6 @@ pzpr.MetaData.prototype = {
 				case "undefcell":
 				case "autocmp":
 				case "autoerr":
-				case "aquarium_regions":
-				case "koburin_minesweeper":
 				case "snakebd":
 				case "context_marks":
 				case "disptype_yajilin":
@@ -3399,6 +3398,20 @@ pzpr.MetaData.prototype = {
 				case "dispqnumbg":
 				case "mouseonly":
 					puzzle.redraw();
+					break;
+				case "aquarium_regions":
+				case "koburin_minesweeper":
+					puzzle.redraw();
+					puzzle.board.autoSolve();
+					break;
+				case "loop_full":
+				case "aqre_borders":
+				case "fillomino_tri":
+				case "akichi_maximum":
+				case "balloon_adjacent":
+				case "country_empty":
+				case "yajilin_out":
+					puzzle.board.autoSolve();
 					break;
 
 				case "font":
@@ -8853,6 +8866,7 @@ pzpr.classmgr.makeCommon({
 				puzzle.emit("canvasReady");
 
 				this.unsuspend();
+				this.board.autoSolve();
 			},
 
 			//---------------------------------------------------------------------------
@@ -8889,6 +8903,7 @@ pzpr.classmgr.makeCommon({
 				if (!insuspend) {
 					this.unsuspend();
 				}
+				this.board.autoSolve();
 			},
 			resizeCanvasByCellSize: function(cellsize, absolute) {
 				var insuspend = this.suspended;
@@ -8905,6 +8920,7 @@ pzpr.classmgr.makeCommon({
 				if (!insuspend) {
 					this.unsuspend();
 				}
+				this.board.autoSolve();
 			},
 
 			//---------------------------------------------------------------------------
@@ -8932,6 +8948,7 @@ pzpr.classmgr.makeCommon({
 
 				// contextのclear等を呼び出す
 				this.clearObject();
+				this.board.autoSolve();
 			},
 
 			setParameter: function() {
