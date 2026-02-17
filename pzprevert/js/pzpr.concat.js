@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2026-02-16
+ * Date: 2026-02-17
  */
 // intro.js
 
@@ -6796,6 +6796,7 @@ pzpr.classmgr.makeCommon({
 					bd.bank.performLayout();
 				}
 
+				this.board.autoSolve();
 				this.adjustBoardData2(key, d);
 			},
 
@@ -8920,7 +8921,6 @@ pzpr.classmgr.makeCommon({
 				if (!insuspend) {
 					this.unsuspend();
 				}
-				this.board.autoSolve();
 			},
 
 			//---------------------------------------------------------------------------
