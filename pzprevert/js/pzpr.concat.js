@@ -3411,6 +3411,7 @@ pzpr.MetaData.prototype = {
 				case "balloon_adjacent":
 				case "country_empty":
 				case "yajilin_out":
+				case "slither_full":
 					puzzle.board.autoSolve();
 					break;
 
