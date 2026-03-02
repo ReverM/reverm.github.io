@@ -1,7 +1,7 @@
 /*!
  * @license
  *
- * pzpr.js v7b09eca2
+ * pzpr.js v252ff1b8
  *  https://github.com/sabo2/pzprv3
  *
  * This script includes candle.js, see below
@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2026-02-20
+ * Date: 2026-03-02
  */
 // intro.js
 
@@ -152,7 +152,7 @@ function createEL(tagName) {
 //---------------------------------------------------------------------------
 /* extern */
 window.ui = {
-	version: "7b09eca2",
+	version: "252ff1b8",
 
 	/* このサイトで使用するパズルのオブジェクト */
 	puzzle: null,

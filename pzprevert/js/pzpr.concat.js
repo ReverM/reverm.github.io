@@ -1,7 +1,7 @@
 /*!
  * @license
  *
- * pzpr.js v7b09eca2
+ * pzpr.js v252ff1b8
  *  https://github.com/sabo2/pzprv3
  *
  * This script includes candle.js, see below
@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2026-02-20
+ * Date: 2026-03-02
  */
 // intro.js
 
@@ -25,7 +25,7 @@
 //---------------------------------------------------------------------------
 /* extern */
 var pzpr = {
-	version: "7b09eca2"
+	version: "252ff1b8"
 };
 
 if (typeof module === "object" && module.exports) {
@@ -14724,7 +14724,12 @@ pzpr.classmgr.makeCommon({
 				} else if (info === -1) {
 					return this.noerrcolor;
 				} else if (isDispmove) {
-					return border.trial ? this.movetrialcolor : this.movelinecolor;
+					return border.trial ? this.movetrialcolor : 
+					this.getColorSolverAware(
+						1 === border.line,
+						1 === border.lineBySolver,
+						this.movelinecolor
+					);
 				} else if (isIrowake) {
 					return border.path.color;
 				} else {
