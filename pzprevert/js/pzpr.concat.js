@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2026-03-03
+ * Date: 2026-03-04
  */
 // intro.js
 
@@ -5527,7 +5527,8 @@ pzpr.classmgr.makeCommon({
 							"doppelblock" === this.pid ||
 							"battleship" === this.pid ||
 							"tents" === this.pid ||
-							"aquarium" === this.pid) &&
+							"aquarium" === this.pid ||
+							"easyasabc" === this.pid) &&
 						"green" === h.color &&
 						h.x % 2 === 1 &&
 						h.y % 2 === 1
@@ -5556,7 +5557,7 @@ pzpr.classmgr.makeCommon({
 							("fill" === j[k] && "firewalk" !== this.pid) ||
 							("circle" === j[k] &&
 								"doppelblock" !== this.pid &&
-								"yinyang" !== this.pid) ||
+								"yinyang" !== this.pid && "usoone" !== this.pid) ||
 							"firewalkCellUl" === j[k] ||
 							"firewalkCellDr" === j[k] ||
 							"firewalkCellUlDr" === j[k] ||
@@ -5579,6 +5580,10 @@ pzpr.classmgr.makeCommon({
 								("doppelblock" === this.pid || "yinyang" === this.pid))
 						) {
 							i.qsubBySolver = 1;
+						} else if ("cross" === j[k]) {
+							i.qsubBySolver = 2;
+						} else if ("circle" === j[k] && "usoone" === this.pid) {
+							i.qsubBySolver = 3;
 						} else if ("aboloUpperLeft" === j[k]) {
 							i.qansBySolver = 5;
 						} else if ("aboloUpperRight" === j[k] || "arrowRight" === j[k]) {
