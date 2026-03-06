@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2026-03-04
+ * Date: 2026-03-06
  */
 // intro.js
 
@@ -5528,7 +5528,8 @@ pzpr.classmgr.makeCommon({
 							"battleship" === this.pid ||
 							"tents" === this.pid ||
 							"aquarium" === this.pid ||
-							"easyasabc" === this.pid) &&
+							"easyasabc" === this.pid ||
+							"skyscrapers" === this.pid) &&
 						"green" === h.color &&
 						h.x % 2 === 1 &&
 						h.y % 2 === 1
