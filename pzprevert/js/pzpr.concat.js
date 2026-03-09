@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2026-03-06
+ * Date: 2026-03-09
  */
 // intro.js
 
@@ -5352,7 +5352,7 @@ pzpr.classmgr.makeCommon({
 				if (window.Worker) {
 					this.isAlt = false;
 					this.isRunning = false;
-					ui.setdisplay();
+					if (typeof ui.setdisplay === "function") ui.setdisplay();
 					if (!!this.solverWorker) {
 						this.solverWorker.terminate();
 					}
