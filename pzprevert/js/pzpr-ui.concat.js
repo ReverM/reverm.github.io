@@ -12,7 +12,7 @@
  * This script is released under the MIT license. Please see below.
  *  http://www.opensource.org/licenses/mit-license.php
  *
- * Date: 2026-07-03
+ * Date: 2026-07-17
  */
 // intro.js
 
@@ -2061,10 +2061,11 @@ ui.menuarea = {
 			} else if (!!menuitem.el) {
 				/* Check部の表記の変更 */
 				var cname = ui.menuconfig.get(idname) ? "checked" : "check";
-				var disabled = null;
+				var disabled = true;
+				/*
 				if (ui.puzzle.config.getvariant(idname)) {
 					disabled = !ui.puzzle.editmode;
-				}
+				}*/
 				if (disabled === true) {
 					cname += " disabled";
 				}
@@ -3515,7 +3516,7 @@ ui.toolarea = {
 					disabled = ui.puzzle.editmode && ui.puzzle.pid === "magnets";
 				}
 				if (ui.puzzle.config.getvariant(idname)) {
-					disabled = !ui.puzzle.editmode;
+					disabled = /*!ui.puzzle.editmode*/ true;
 				}
 				if (disabled !== null) {
 					toolitem.checkbox.disabled = !disabled ? "" : "true";
